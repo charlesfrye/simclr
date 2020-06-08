@@ -1,0 +1,38 @@
+program: /app/run_sweep.py
+method: grid
+metric:
+  name: label_top_1_accuracy
+  goal: maximize
+parameters:
+  weight_decay:
+    distribution: categorical
+    values:
+      - 0.0
+      - 0.0001
+
+command:
+  - ${env}
+  - python
+  - ${program}
+  - "--mode=train_then_eval"
+  - "--train_mode=finetune"
+  - "--fine_tune_after_block=4"
+  - "--zero_init_logits_layer=True"
+  - "--variable_schema='(?!global_step|(?:.*/|^)LARSOptimizer|head)'"
+  - "--global_bn=False"
+  - "--optimizer=momentum"
+  - "--learning_rate=0.1"
+  - "--train_epochs=100"
+  - "--train_batch_size=512"
+  - "--warmup_epochs=0"
+  - "--image_size=32"
+  - "--eval_split=test"
+  - "--resnet_depth=18"
+  - "--dataset=cifar10"
+  - "--data_dir=/data/cifar10"
+  - "--checkpoint=/data/cifar10_model"
+  - "--model_dir"
+  - /data/ckpt_sweep
+  - "--use_tpu=False"
+  - "--clean"
+  - ${args}
