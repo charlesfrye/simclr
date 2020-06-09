@@ -7,6 +7,7 @@ IMAGE_PARENT ?=tensorflow/tensorflow:1.15.0-gpu-py3
 IMAGE_NAME ?=simclr
 WANDB_IMAGE ?=simclr:wandb
 WANDB_PROJECT ?=simclr
+WANDB_BASE_URL ?=https://api.wandb.ai
 
 container:
 	docker build -t $(IMAGE_NAME) --build-arg PARENT=${IMAGE_PARENT} .
@@ -35,7 +36,7 @@ run_finetune:
   --fine_tune_after_block=4 --zero_init_logits_layer=True \
   --variable_schema='(?!global_step|(?:.*/|^)LARSOptimizer|head)' \
   --global_bn=False --optimizer=momentum --learning_rate=0.1 --weight_decay=0.0 \
-  --train_epochs=100 --train_batch_size=512 --warmup_epochs=0 \
+  --train_epochs=10 --train_batch_size=512 --warmup_epochs=0 \
   --image_size=32 --eval_split=test --resnet_depth=18 \
   --dataset=cifar10 --data_dir=${DATA_DIR} \
   --checkpoint=${CHECKPOINT} --model_dir=${MODEL_DIR} --use_tpu=False
@@ -43,7 +44,7 @@ run_finetune:
 # create WANDB sweep for hyper-parameter tuning
 wandb_container:
 	docker build -t $(WANDB_IMAGE) --build-arg PARENT=${IMAGE_PARENT} \
-	--build-arg WANDB_BASE_URL=${WANDB_BASE_URL} -f Dockerfile.wandb .
+	--build-arg WANDB_BASE_URL=${WANDB_BASE_URL} -f Dockerfile .
 
 # make create_sweep WANDB_DIR=... WANDB_USERNAME=... WANDB_API_KEY=... WANDB_PROJECT=simclr SWEEP_CONFIG=...
 create_sweep: wandb_container
@@ -51,6 +52,7 @@ create_sweep: wandb_container
 	docker run -u `id -u`:`id -g` -v ${WANDB_DIR}:/data -w /data/wandb_sweep \
 	-e WANDB_CONFIG_DIR=/data/wandb_sweep -e WANDB_USERNAME=${WANDB_USERNAME} \
 	-e WANDB_API_KEY=${WANDB_API_KEY} -e WANDB_PROJECT=${WANDB_PROJECT} \
+	-e WANDB_BASE_URL=$(WANDB_BASE_URL) \
 	${WANDB_IMAGE} wandb sweep /data/${SWEEP_CONFIG}
 
 # make start_sweep WANDB_DIR=... WANDB_USERNAME=... WANDB_API_KEY=... WANDB_PROJECT=simclr SWEEP_ID=...
