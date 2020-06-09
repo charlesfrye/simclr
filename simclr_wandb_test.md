@@ -10,10 +10,7 @@ When using wandb for grid search sweep of hyperparameters during simclr finetuni
 systematically. For the same set of parameters, the accuracy drops from over 90% to below 30%. 
 
 The change to add wandb API calls is minimal, from [run.py](run.py) (without using wandb) to 
-[run_sweep.py](run_sweep.py) (with wandb). There is only one additional dependency in the docker environment:
-```dockerfile
-RUN pip install wandb
-``` 
+[run_sweep.py](run_sweep.py) (with wandb).
 
 ### Set up
 
@@ -36,6 +33,7 @@ make simclr DATA_DIR=/host/path/data
 # inside docker
 tf-docker /app > make run_pretrain DATA_DIR=/data/cifar10 MODEL_DIR=/data/cifar10_model |& tee run_pretrain.log
 ```
+where `/host/path/data` is arbitrary.
 
 ### Finetune simclr with CIFAR-10
 
@@ -53,9 +51,13 @@ As a reference, the above runs on CIFAR-10 should give you around 91% accuracy, 
 
 First create a W&B project simclr.
 
-Use the example sweep configuration in [finetune_cifar10_wandb.yaml](finetune_cifar10_wandb.yaml) to create a sweep:
+
+Use the example sweep configuration in [finetune_cifar10_wandb.yaml](finetune_cifar10_wandb.yaml) to create a sweep.
+You'll also need a WANDB_DIR that contains this file.
+It will be loaded into the /data directory of the container.
+
 ```shell script
-make create_sweep WANDB_DIR=... WANDB_USERNAME=... WANDB_API_KEY=... WANDB_PROJECT=simclr SWEEP_CONFIG=...
+make create_sweep WANDB_BASE_URL=... WANDB_DIR=... WANDB_USERNAME=... WANDB_API_KEY=... WANDB_PROJECT=simclr SWEEP_CONFIG=...
 ```
 
 Record the sweep id, and use it in the next section.
@@ -63,7 +65,7 @@ Record the sweep id, and use it in the next section.
 ### Start W&B sweep
 
 ```shell script
-make start_sweep WANDB_DIR=... WANDB_USERNAME=... WANDB_API_KEY=... WANDB_PROJECT=simclr SWEEP_ID=...
+make start_sweep WANDB_BASE_URL=... WANDB_DIR=... WANDB_USERNAME=... WANDB_API_KEY=... WANDB_PROJECT=simclr SWEEP_ID=...
 ```
 
 ### Comparison
