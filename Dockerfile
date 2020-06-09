@@ -7,9 +7,12 @@ WORKDIR /app
 COPY requirements.txt /app
 
 RUN pip install -r requirements.txt
+RUN pip install wandb
 
 COPY *.py /app/
-COPY *.sh /app/
 COPY Makefile /app
 
 ENV PYTHONPATH /app
+
+ARG WANDB_BASE_URL
+ENV WANDB_BASE_URL ${WANDB_BASE_URL}
