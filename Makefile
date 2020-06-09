@@ -60,4 +60,4 @@ start_sweep: wandb_container
 	--shm-size=1g --ulimit memlock=-1 -e CUDA_VISIBLE_DEVICES=0 \
 	-w /data/wandb_sweep -e WANDB_CONFIG_DIR=/data/wandb_sweep \
 	-e WANDB_USERNAME=${WANDB_USERNAME} -e WANDB_API_KEY=${WANDB_API_KEY} -e WANDB_PROJECT=${WANDB_PROJECT} \
-	${IMAGE_NAME} wandb agent ${WANDB_OPTION} ${SWEEP_ID}
+	${WANDB_IMAGE} wandb agent ${WANDB_OPTION} ${SWEEP_ID}
