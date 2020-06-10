@@ -53,8 +53,9 @@ First create a W&B project simclr.
 
 
 Use the example sweep configuration in [finetune_cifar10_wandb.yaml](finetune_cifar10_wandb.yaml) to create a sweep.
-You'll also need a WANDB_DIR that contains this file.
-It will be loaded into the /data directory of the container.
+You'll also need a WANDB_DIR that contains this file and the pretrained model.
+It will be loaded into the `/data` directory of the container.
+I kept this separate from DATA_DIR.
 
 ```shell script
 make create_sweep WANDB_BASE_URL=... WANDB_DIR=... WANDB_USERNAME=... WANDB_API_KEY=... WANDB_PROJECT=simclr SWEEP_CONFIG=...
@@ -67,6 +68,10 @@ Record the sweep id, and use it in the next section.
 ```shell script
 make start_sweep WANDB_BASE_URL=... WANDB_DIR=... WANDB_USERNAME=... WANDB_API_KEY=... WANDB_PROJECT=simclr SWEEP_ID=...
 ```
+
+The sweeps don't log anything, so if you want to see performance,
+find the `ckpt_sweep` folder in your WANDB_DIR
+and run tensorboard with that as the `logdir`.
 
 ### Comparison
 
